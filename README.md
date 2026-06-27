@@ -1,0 +1,2 @@
+# Warframe_PrimeRelicsDropSearch
+公式のドロップテーブルをリソースにして任意のPrime武器/フレームを抽選するレリック表を作成します。
