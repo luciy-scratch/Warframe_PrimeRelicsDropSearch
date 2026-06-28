@@ -1,33 +1,30 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Warframe Relic Searcher</title>
 
   <!-- ===== Google Fonts =====
-       Orbitron     : メインタイトルのみ (デザインアクセント)
+       ui-symbolic     : メインタイトルのみ (デザインアクセント)
        Source Sans 3: UI 全般 (高視認性サンセリフ)
-       JetBrains Mono: レリックバッジ (等幅 / 文字識別性最大) -->
+       ui-badge Mono: レリックバッジ (等幅 / 文字識別性最大) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Source+Sans+3:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Murecho:wght@100..900&family=Nova+Script&family=SUSE+Mono:ital,wght@0,100..800;1,100..800&family=SUSE:ital,wght@0,100..900;1,100..900&display=swap"
+    rel="stylesheet">
 
-  <!-- ===== Tailwind CSS Play CDN (v3) ===== -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: {
-            'orbitron':    ['Orbitron', 'monospace'],
-            'source-sans': ['"Source Sans 3"', 'system-ui', 'sans-serif'],
-            'jetbrains':   ['"JetBrains Mono"', 'monospace'],
-          }
-        }
-      }
+  <!-- ===== Tailwind CSS Play CDN (v4) ===== -->
+  <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+  <style type="text/tailwindcss">
+    @theme {
+      --font-ui-symbolic: "Nova Script", monospace;
+      --font-ui-main: "SUSE", "Murecho", system-ui, sans-serif;
+      --font-ui-badge: "SUSE Mono", monospace;
     }
-  </script>
+  </style>
 
   <!-- ===== HTMX 2.x (CDN) =====
        役割: ボタンの宣言的スタイル定義
@@ -40,34 +37,50 @@
 
   <style>
     /* スクロールバー (ライトテーマ) */
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track  { background: #f3f4f6; }
-    ::-webkit-scrollbar-thumb  { background: #d1d5db; border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #f3f4f6;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #d1d5db;
+      border-radius: 3px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #9ca3af;
+    }
 
     /* PyScript デフォルトの py-terminal を非表示 */
-    py-terminal { display: none !important; }
+    py-terminal {
+      display: none !important;
+    }
   </style>
 </head>
-<body class="bg-gray-50 text-gray-900 min-h-screen font-source-sans antialiased">
+
+<body class="bg-gray-50 text-gray-900 min-h-screen font-ui-main antialiased">
 
   <!-- ================================================================
        PyScript 起動中フルスクリーンローディングオーバーレイ
        main.py の初期化完了後に Python 側から非表示にされる
        ================================================================ -->
   <div id="pyscript-loading-overlay"
-       class="fixed inset-0 bg-white flex flex-col items-center justify-center z-50 gap-6">
+    class="fixed inset-0 bg-white flex flex-col items-center justify-center z-50 gap-6">
     <div class="text-center">
-      <p class="font-source-sans text-xs tracking-widest text-cyan-600 mb-2 uppercase font-semibold">
-        Tenno Arsenal
+      <p class="font-ui-main text-xs tracking-widest text-yellow-500 mb-2 uppercase font-semibold">
+        Tenno Support
       </p>
-      <h1 class="font-orbitron text-2xl md:text-4xl font-black text-cyan-600 tracking-wide">
-        RELIC SEARCHER
+      <h1 class="font-ui-symbolic text-2xl md:text-4xl font-black bg-gradient-to-r from-yellow-500 to-amber-400 bg-clip-text text-transparent tracking-wide">
+        Prime Relic Search
       </h1>
     </div>
     <div class="relative w-16 h-16">
-      <div class="absolute inset-0 rounded-full border-2 border-gray-200"></div>
-      <div class="absolute inset-0 rounded-full border-t-2 border-cyan-500 animate-spin"></div>
+      <div class="absolute inset-0 rounded-full border-2 border-gray-100"></div>
+      <div class="absolute inset-0 rounded-full border-t-2 border-amber-300 animate-spin"></div>
     </div>
     <div class="text-center">
       <p class="text-gray-500 text-sm font-semibold">SYSTEM INITIALIZING</p>
@@ -85,79 +98,71 @@
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <!-- タイトル -->
         <div class="flex items-end gap-3">
-          <div class="w-1 h-10 bg-cyan-500 rounded-full hidden md:block flex-shrink-0"></div>
+          <div class="w-1 h-10 bg-yellow-500 rounded-full hidden md:block flex-shrink-0"></div>
           <div>
-            <!-- "Tenno Arsenal" は Source Sans 3 で視認性を優先 -->
-            <p class="font-source-sans text-xs tracking-widest text-cyan-600 uppercase font-semibold">
-              Tenno Arsenal
+            <p class="font-ui-main text-xs tracking-widest text-yellow-500 uppercase font-semibold">
+              Tenno Support
             </p>
-            <h1 class="font-orbitron text-xl md:text-2xl font-black text-gray-900 tracking-wide uppercase">
-              Warframe Relic Searcher
+            <h1
+              class="font-ui-symbolic text-xl md:text-2xl font-black bg-gradient-to-r from-yellow-500 to-amber-400 bg-clip-text text-transparent tracking-wide uppercase">
+              Warframe - Prime Relic Search
             </h1>
           </div>
         </div>
 
         <!-- データ更新ボタン
              クリックイベントは main.py の @when("click", "#reload-btn") が処理する -->
-        <button
-          id="reload-btn"
-          disabled
-          title="ドロップテーブルを再取得します"
-          class="flex items-center justify-center gap-2 self-start sm:self-center
+        <button id="reload-btn" disabled title="ドロップテーブルを再取得します" class="flex items-center justify-center gap-2 self-start sm:self-center
                  min-w-[120px] bg-white hover:bg-gray-50
-                 border border-gray-300 hover:border-cyan-500
-                 rounded-lg px-4 py-2 text-sm font-source-sans font-semibold
-                 text-gray-700 hover:text-cyan-600
+                 border border-gray-300 hover:border-yellow-500
+                 rounded-lg px-4 py-2 text-sm font-ui-main font-semibold
+                 text-gray-700 hover:text-yellow-500
                  disabled:opacity-40 disabled:cursor-not-allowed
                  disabled:hover:bg-white disabled:hover:border-gray-300 disabled:hover:text-gray-700
-                 transition-all duration-150 group shadow-sm flex-shrink-0"
-        >
+                 transition-all duration-150 group shadow-sm flex-shrink-0">
           <!-- ローディング中スピナー: set_loading_state(True) 時に表示 -->
-          <svg id="loading-indicator"
-               class="animate-spin h-4 w-4 text-cyan-500 hidden flex-shrink-0"
-               xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-            <path class="opacity-75" fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z
-                     m2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
+          <svg id="loading-indicator" class="animate-spin h-4 w-4 text-yellow-500 hidden flex-shrink-0"
+            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z
+                     m2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
           </svg>
           <!-- 更新アイコン: ローディング中は非表示 -->
-          <svg id="reload-icon"
-               class="h-4 w-4 flex-shrink-0 group-hover:rotate-180 transition-transform duration-300"
-               fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9
-                     m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+          <svg id="reload-icon" class="h-4 w-4 flex-shrink-0 group-hover:rotate-180 transition-transform duration-300"
+            fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9
+                     m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
           </svg>
           <span>データ更新</span>
         </button>
       </div>
 
       <p class="text-gray-500 text-sm mt-2 ml-0 md:ml-4">
-        Primeアイテムの製作パーツが、どのレリックからドロップするかを検索します
+        Primeアイテムの製作パーツが、どのレリックからドロップするかを検索します<br>
+        ※ 検索するレリックの精錬状態は全て"無傷な(Intact)"ランクです
       </p>
     </header>
 
     <!-- ステータスバー -->
     <div class="flex items-center gap-2 mb-4 px-1">
       <!-- "STATUS" ラベルは Source Sans 3 -->
-      <span class="font-source-sans text-xs tracking-widest text-gray-400 uppercase font-semibold">Status</span>
+      <span class="font-ui-main text-xs tracking-widest text-gray-400 uppercase font-semibold">Status</span>
       <span class="text-gray-300">›</span>
-      <span id="status-text" class="font-source-sans text-sm font-semibold text-gray-500">初期化中...</span>
+      <span id="status-text" class="font-ui-main text-sm font-semibold text-gray-500">初期化中...</span>
     </div>
 
     <!-- ================================================================
          凡例: ティア別バッジ色 (Source Sans 3 ラベル)
          ================================================================ -->
     <div class="flex flex-wrap items-center gap-x-4 gap-y-2 mb-6 px-1">
-      <span class="font-source-sans text-xs tracking-widest text-gray-400 uppercase font-semibold">Tier</span>
-      <span class="inline-flex items-center px-2.5 py-1 rounded border text-sm font-jetbrains font-semibold
+      <span class="font-ui-main text-xs tracking-widest text-gray-400 uppercase font-semibold">Tier</span>
+      <span class="inline-flex items-center px-2.5 py-1 rounded border text-sm font-ui-badge font-medium
                    text-sky-700 border-sky-400 bg-sky-50">Lith</span>
-      <span class="inline-flex items-center px-2.5 py-1 rounded border text-sm font-jetbrains font-semibold
+      <span class="inline-flex items-center px-2.5 py-1 rounded border text-sm font-ui-badge font-medium
                    text-emerald-700 border-emerald-400 bg-emerald-50">Meso</span>
-      <span class="inline-flex items-center px-2.5 py-1 rounded border text-sm font-jetbrains font-semibold
+      <span class="inline-flex items-center px-2.5 py-1 rounded border text-sm font-ui-badge font-medium
                    text-violet-700 border-violet-400 bg-violet-50">Neo</span>
-      <span class="inline-flex items-center px-2.5 py-1 rounded border text-sm font-jetbrains font-semibold
+      <span class="inline-flex items-center px-2.5 py-1 rounded border text-sm font-ui-badge font-medium
                    text-amber-700 border-amber-400 bg-amber-50">Axi</span>
     </div>
 
@@ -171,9 +176,9 @@
     <section class="mb-6 pb-6 border-b border-gray-200">
       <!-- "SEARCH 01" ラベルは Source Sans 3 -->
       <div class="flex items-center gap-2 mb-3">
-        <span class="flex-shrink-0 w-5 h-5 rounded-full bg-gray-100 border border-cyan-400
-                     flex items-center justify-center font-source-sans text-xs font-bold text-cyan-600">1</span>
-        <span class="font-source-sans text-xs tracking-widest text-gray-400 uppercase font-semibold">Search 01</span>
+        <span class="flex-shrink-0 w-5 h-5 rounded-full bg-amber-50 border border-yellow-500
+                     flex items-center justify-center font-ui-main text-xs font-bold text-amber-400">1</span>
+        <span class="font-ui-main text-xs tracking-widest text-gray-400 uppercase font-semibold">Search 01</span>
       </div>
       <!-- 検索欄・ドロップダウン (Source Sans 3) -->
       <div class="flex flex-col sm:flex-row gap-3 mb-3">
@@ -181,39 +186,29 @@
           <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none">
             <svg class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/>
+                d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" />
             </svg>
           </div>
-          <input
-            id="search-input-1"
-            type="text"
-            placeholder="Primeアイテムを検索... (例: Nova Prime)"
-            disabled
-            autocomplete="off"
-            class="w-full font-source-sans bg-white border border-gray-300 rounded-lg
+          <input id="search-input-1" type="text" placeholder="Primeアイテムを検索... (例: Nova Prime)" disabled
+            autocomplete="off" class="w-full font-ui-main bg-white border border-gray-300 rounded-lg
                    pl-9 pr-4 py-2.5 text-sm text-gray-900 placeholder-gray-400
-                   focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/50
+                   focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50
                    disabled:bg-gray-50 disabled:opacity-60 disabled:cursor-not-allowed
-                   shadow-sm transition-colors duration-150"
-          >
+                   shadow-sm transition-colors duration-150">
         </div>
         <div class="sm:w-64">
-          <select
-            id="item-select-1"
-            disabled
-            class="w-full font-source-sans bg-white border border-gray-300 rounded-lg
+          <select id="item-select-1" disabled class="w-full font-ui-main bg-white border border-gray-300 rounded-lg
                    px-3 py-2.5 text-sm text-gray-900
-                   focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/50
+                   focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50
                    disabled:bg-gray-50 disabled:opacity-60 disabled:cursor-not-allowed
-                   shadow-sm transition-colors duration-150"
-          >
+                   shadow-sm transition-colors duration-150">
             <option value="">-- アイテムを選択 --</option>
           </select>
         </div>
       </div>
       <div id="result-area-1" class="min-h-[120px]">
         <div class="flex flex-col items-center justify-center py-10 text-gray-300">
-          <p class="font-source-sans text-xs text-gray-400">システムを起動しています...</p>
+          <p class="font-ui-main text-xs text-gray-400">システムを起動しています...</p>
         </div>
       </div>
     </section>
@@ -221,48 +216,38 @@
     <!-- ── パネル 2 ── -->
     <section class="mb-6 pb-6 border-b border-gray-200">
       <div class="flex items-center gap-2 mb-3">
-        <span class="flex-shrink-0 w-5 h-5 rounded-full bg-gray-100 border border-cyan-400
-                     flex items-center justify-center font-source-sans text-xs font-bold text-cyan-600">2</span>
-        <span class="font-source-sans text-xs tracking-widest text-gray-400 uppercase font-semibold">Search 02</span>
+        <span class="flex-shrink-0 w-5 h-5 rounded-full bg-amber-50 border border-yellow-500
+                     flex items-center justify-center font-ui-main text-xs font-bold text-amber-400">2</span>
+        <span class="font-ui-main text-xs tracking-widest text-gray-400 uppercase font-semibold">Search 02</span>
       </div>
       <div class="flex flex-col sm:flex-row gap-3 mb-3">
         <div class="relative flex-1">
           <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none">
             <svg class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/>
+                d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" />
             </svg>
           </div>
-          <input
-            id="search-input-2"
-            type="text"
-            placeholder="Primeアイテムを検索... (例: Ash Prime)"
-            disabled
-            autocomplete="off"
-            class="w-full font-source-sans bg-white border border-gray-300 rounded-lg
+          <input id="search-input-2" type="text" placeholder="Primeアイテムを検索... (例: Ash Prime)" disabled
+            autocomplete="off" class="w-full font-ui-main bg-white border border-gray-300 rounded-lg
                    pl-9 pr-4 py-2.5 text-sm text-gray-900 placeholder-gray-400
-                   focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/50
+                   focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50
                    disabled:bg-gray-50 disabled:opacity-60 disabled:cursor-not-allowed
-                   shadow-sm transition-colors duration-150"
-          >
+                   shadow-sm transition-colors duration-150">
         </div>
         <div class="sm:w-64">
-          <select
-            id="item-select-2"
-            disabled
-            class="w-full font-source-sans bg-white border border-gray-300 rounded-lg
+          <select id="item-select-2" disabled class="w-full font-ui-main bg-white border border-gray-300 rounded-lg
                    px-3 py-2.5 text-sm text-gray-900
-                   focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/50
+                   focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50
                    disabled:bg-gray-50 disabled:opacity-60 disabled:cursor-not-allowed
-                   shadow-sm transition-colors duration-150"
-          >
+                   shadow-sm transition-colors duration-150">
             <option value="">-- アイテムを選択 --</option>
           </select>
         </div>
       </div>
       <div id="result-area-2" class="min-h-[120px]">
         <div class="flex flex-col items-center justify-center py-10 text-gray-300">
-          <p class="font-source-sans text-xs text-gray-400">システムを起動しています...</p>
+          <p class="font-ui-main text-xs text-gray-400">システムを起動しています...</p>
         </div>
       </div>
     </section>
@@ -270,48 +255,38 @@
     <!-- ── パネル 3 ── -->
     <section class="mb-6">
       <div class="flex items-center gap-2 mb-3">
-        <span class="flex-shrink-0 w-5 h-5 rounded-full bg-gray-100 border border-cyan-400
-                     flex items-center justify-center font-source-sans text-xs font-bold text-cyan-600">3</span>
-        <span class="font-source-sans text-xs tracking-widest text-gray-400 uppercase font-semibold">Search 03</span>
+        <span class="flex-shrink-0 w-5 h-5 rounded-full bg-amber-50 border border-yellow-500
+                     flex items-center justify-center font-ui-main text-xs font-bold text-amber-400">3</span>
+        <span class="font-ui-main text-xs tracking-widest text-gray-400 uppercase font-semibold">Search 03</span>
       </div>
       <div class="flex flex-col sm:flex-row gap-3 mb-3">
         <div class="relative flex-1">
           <div class="absolute inset-y-0 left-3 flex items-center pointer-events-none">
             <svg class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/>
+                d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" />
             </svg>
           </div>
-          <input
-            id="search-input-3"
-            type="text"
-            placeholder="Primeアイテムを検索... (例: Volt Prime)"
-            disabled
-            autocomplete="off"
-            class="w-full font-source-sans bg-white border border-gray-300 rounded-lg
+          <input id="search-input-3" type="text" placeholder="Primeアイテムを検索... (例: Volt Prime)" disabled
+            autocomplete="off" class="w-full font-ui-main bg-white border border-gray-300 rounded-lg
                    pl-9 pr-4 py-2.5 text-sm text-gray-900 placeholder-gray-400
-                   focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/50
+                   focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50
                    disabled:bg-gray-50 disabled:opacity-60 disabled:cursor-not-allowed
-                   shadow-sm transition-colors duration-150"
-          >
+                   shadow-sm transition-colors duration-150">
         </div>
         <div class="sm:w-64">
-          <select
-            id="item-select-3"
-            disabled
-            class="w-full font-source-sans bg-white border border-gray-300 rounded-lg
+          <select id="item-select-3" disabled class="w-full font-ui-main bg-white border border-gray-300 rounded-lg
                    px-3 py-2.5 text-sm text-gray-900
-                   focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500/50
+                   focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50
                    disabled:bg-gray-50 disabled:opacity-60 disabled:cursor-not-allowed
-                   shadow-sm transition-colors duration-150"
-          >
+                   shadow-sm transition-colors duration-150">
             <option value="">-- アイテムを選択 --</option>
           </select>
         </div>
       </div>
       <div id="result-area-3" class="min-h-[120px]">
         <div class="flex flex-col items-center justify-center py-10 text-gray-300">
-          <p class="font-source-sans text-xs text-gray-400">システムを起動しています...</p>
+          <p class="font-ui-main text-xs text-gray-400">システムを起動しています...</p>
         </div>
       </div>
     </section>
@@ -321,7 +296,7 @@
       <p>
         Drop data provided by
         <a href="https://drops.warframestat.us/" target="_blank" rel="noopener"
-           class="text-gray-500 hover:text-cyan-600 transition-colors underline underline-offset-2">
+          class="text-gray-500 hover:text-yellow-500 transition-colors underline underline-offset-2">
           drops.warframestat.us
         </a>
         — Not affiliated with Digital Extremes
@@ -329,6 +304,39 @@
     </footer>
 
   </div><!-- /#app -->
+
+  <!-- ================================================================
+       html-to-image — レリックテーブルの PNG ダウンロード用
+       html2canvas と異なり SVG foreignObject でブラウザ自身がレンダリングするため
+       Tailwind v4 が使用する oklch() カラー関数にも対応している
+       Python 側から window.downloadTableAsPng(elementId, filename) で呼び出す
+       ================================================================ -->
+  <script src="https://unpkg.com/html-to-image@1.11.11/dist/html-to-image.js"></script>
+  <script>
+    // elementId: キャプチャ対象要素の ID 文字列 (PyScript DOM プロキシ渡しを避けるため ID で受け取る)
+    window.downloadTableAsPng = async function (elementId, filename) {
+      const element = document.getElementById(elementId);
+      if (!element) {
+        console.error('[エラー] キャプチャ対象が見つかりません:', elementId);
+        return;
+      }
+      try {
+        const dataUrl = await htmlToImage.toPng(element, {
+          backgroundColor: '#ffffff',
+          pixelRatio: 2,      // 2x 解像度で Retina 対応
+          skipFonts: true,    // Google Fonts / PyScript CDN の cssRules CORS エラーを回避
+        });
+        const link = document.createElement('a');
+        link.download = filename + '.png';
+        link.href = dataUrl;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } catch (err) {
+        console.error('[エラー] PNG 生成失敗:', err);
+      }
+    };
+  </script>
 
   <!-- ================================================================
        PyScript エントリーポイント
@@ -344,4 +352,5 @@
   </script>
 
 </body>
+
 </html>

@@ -29,6 +29,7 @@ from js import fetch as js_fetch  # ブラウザネイティブの fetch API を
 DROP_TABLE_URL: str = "https://drops.warframestat.us/data/relics.json"
 
 # フォールバック: API 取得失敗時に使用するローカルモックデータ
+# TODO 開発用データが入っているので取得失敗を通知する内容に変えてもいいかも #
 FALLBACK_URL: str = "./data_mock.json"
 
 # Intact 時の確率によるレアリティ再分類テーブル
@@ -44,9 +45,9 @@ RARITY_ORDER: list[str] = ["Common", "Uncommon", "Rare"]
 
 # レアリティ別ヘッダー文字色 (白背景に対して WCAG AA 以上のコントラスト比を確保)
 RARITY_HEADER_CSS: dict[str, str] = {
-    "Common":   "text-amber-700",
-    "Uncommon": "text-slate-600",
-    "Rare":     "text-yellow-700",
+    "Common":   "text-amber-700 text-shadow-sm text-shadow-orange-300",
+    "Uncommon": "text-zinc-500 text-shadow-sm text-shadow-slate-400",
+    "Rare":     "text-yellow-500 text-shadow-sm text-shadow-amber-200",
 }
 
 # Intact 時の確率ラベル (ヘッダーサブテキスト表示用)
@@ -299,7 +300,7 @@ def render_relic_badge(relic_info: dict) -> str:
 
     return (
         f'<span class="inline-flex items-center border rounded px-2 py-1 '
-        f'text-sm font-jetbrains font-semibold whitespace-nowrap mr-1 mb-1 {css_classes}">'
+        f'text-sm font-ui-badge font-medium tracking-wide whitespace-nowrap mr-1 mb-1 {css_classes}">'
         f'{display}'
         f'</span>'
     )
@@ -323,7 +324,7 @@ def render_relic_table(prime_item_name: str, index: dict) -> str:
     if prime_item_name not in index:
         return (
             '<div class="flex flex-col items-center justify-center py-10 text-gray-400">'
-            '<p class="font-source-sans text-sm">該当するアイテムが見つかりません。</p>'
+            '<p class="font-ui-main text-sm">該当するアイテムが見つかりません。</p>'
             '</div>'
         )
 
@@ -336,12 +337,12 @@ def render_relic_table(prime_item_name: str, index: dict) -> str:
         header_css    = RARITY_HEADER_CSS.get(rarity, "text-zinc-400")
         chance_label  = RARITY_CHANCE_LABEL.get(rarity, "")
         rarity_headers_html += (
-            f'<th class="px-4 py-3 text-center font-source-sans font-bold '
+            f'<th class="px-4 py-3 text-center font-ui-main font-bold '
             f'{header_css} uppercase tracking-wide border-b border-gray-200 '
             f'whitespace-nowrap min-w-[180px] text-base">'
             f'{rarity}'
-            f'<span class="block text-xs font-source-sans text-gray-400 '
-            f'normal-case tracking-normal font-normal mt-0.5">{chance_label}</span>'
+            f'<span class="block text-xs font-ui-main text-gray-500 '
+            f'normal-case tracking-normal font-semibold mt-0.5">{chance_label}</span>'
             f'</th>'
         )
 
@@ -382,7 +383,7 @@ def render_relic_table(prime_item_name: str, index: dict) -> str:
         rows_html += (
             f'<tr class="border-b border-gray-200 hover:bg-gray-50 '
             f'transition-colors duration-100">'
-            f'<td class="px-4 py-3 font-source-sans font-semibold text-gray-900 whitespace-nowrap '
+            f'<td class="px-4 py-3 font-ui-main font-semibold text-gray-900 whitespace-nowrap '
             f'text-sm border-r border-gray-200">{part_name}</td>'
             f'{cells_html}'
             f'</tr>'
@@ -393,7 +394,7 @@ def render_relic_table(prime_item_name: str, index: dict) -> str:
         f'<table class="w-full text-sm text-gray-800 border-collapse">'
         f'<thead class="bg-gray-100">'
         f'<tr>'
-        f'<th class="px-4 py-3 text-left text-sm font-source-sans font-semibold text-gray-600 '
+        f'<th class="px-4 py-3 text-left text-sm font-ui-main font-semibold text-gray-600 '
         f'uppercase tracking-wide border-b border-gray-200 '
         f'border-r border-gray-200 whitespace-nowrap">パーツ</th>'
         f'{rarity_headers_html}'
@@ -474,8 +475,8 @@ def set_status(message: str, state: str = "normal") -> None:
 
     color_map = {
         "normal":  "text-gray-500",
-        "loading": "text-cyan-700",
-        "success": "text-emerald-700",
+        "loading": "text-gray-500",
+        "success": "text-yellow-400",
         "error":   "text-red-700",
     }
     for cls in color_map.values():
@@ -497,7 +498,7 @@ def show_placeholder_in_result_area(panel_id: int) -> None:
         '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" '
         'd="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/>'
         '</svg>'
-        '<p class="font-source-sans text-xs text-gray-400">アイテムを選択または検索してください</p>'
+        '<p class="font-ui-main text-xs text-gray-400">アイテムを選択または検索してください</p>'
         '</div>'
     )
 
@@ -512,8 +513,8 @@ def show_error_in_all_panels(message: str) -> None:
     error_html = (
         '<div class="flex flex-col items-center justify-center py-10 gap-2">'
         '<div class="text-red-400 text-3xl select-none">⚠</div>'
-        f'<p class="font-source-sans font-semibold text-red-700 text-xs">{message}</p>'
-        '<p class="font-source-sans text-gray-400 text-xs">「データ更新」ボタンで再試行してください。</p>'
+        f'<p class="font-ui-main font-semibold text-red-700 text-xs">{message}</p>'
+        '<p class="font-ui-main text-gray-400 text-xs">「データ更新」ボタンで再試行してください。</p>'
         '</div>'
     )
     for panel_id in range(1, PANEL_COUNT + 1):
@@ -529,6 +530,10 @@ def update_results(selected_item: str, panel_id: int) -> None:
     """
     選択された Prime アイテムのレリックテーブルを指定パネルに描画する。
 
+    テーブル上部に PNG ダウンロードボタンを配置し、クリック時に
+    js_window.downloadTableAsPng() を呼んでキャプチャ領域を PNG 出力する。
+    ファイル名は "<Primeアイテム名>_レリックテーブル.png" の形式。
+
     Args:
         selected_item (str): 表示する Prime アイテム名。空文字でプレースホルダー。
         panel_id      (int): 描画対象パネルの番号 (1〜PANEL_COUNT)
@@ -540,12 +545,43 @@ def update_results(selected_item: str, panel_id: int) -> None:
     result_area = document.getElementById(f"result-area-{panel_id}")
     table_html  = render_relic_table(selected_item, prime_index)
 
+    # ダウンロードアイコン SVG (↓ 矢印)
+    download_icon_svg = (
+        '<svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">'
+        '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" '
+        'd="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>'
+        '</svg>'
+    )
+
+    # onclick 属性に JS を直接埋め込む。
+    # PyScript の addEventListener 経由では Python → JS の関数プロキシが不安定なため、
+    # 純粋な JS 呼び出しにすることで確実に動作させる。
+    _capture_id = f"capture-area-{panel_id}"
+    _filename   = f"{selected_item}_レリックテーブル"
+    _onclick    = f"window.downloadTableAsPng('{_capture_id}', '{_filename}')"
+
     result_area.innerHTML = (
-        f'<div class="mb-3 flex items-baseline gap-2">'
-        f'<span class="font-source-sans font-bold text-lg text-gray-900">{selected_item}</span>'
-        f'<span class="font-source-sans text-gray-400 text-sm">のレリック一覧</span>'
+        # キャプチャ対象領域: アイテム名ラベル + テーブル
+        f'<div id="{_capture_id}" class="bg-gray-50 p-3 rounded-lg">'
+        f'<div class="mb-2">'
+        f'<span class="font-ui-main font-bold text-base text-gray-900">{selected_item}</span>'
+        f'<span class="font-ui-main text-gray-400 text-sm ml-2">のレリック一覧 (Intact)</span>'
         f'</div>'
         f'{table_html}'
+        f'</div>'
+        # ダウンロードボタン (キャプチャ範囲外 / テーブル下)
+        f'<div class="mt-2 flex justify-end">'
+        f'<button onclick="{_onclick}" '
+        f'class="flex items-center gap-1.5 flex-shrink-0 '
+        f'text-xs font-ui-main font-semibold '
+        f'text-gray-500 hover:text-yellow-500 '
+        f'border border-gray-300 hover:border-yellow-500 '
+        f'bg-white rounded-lg px-3 py-1.5 '
+        f'transition-all duration-150 shadow-sm">'
+        f'{download_icon_svg}'
+        f'PNG保存'
+        f'</button>'
+        f'</div>'
     )
 
 
